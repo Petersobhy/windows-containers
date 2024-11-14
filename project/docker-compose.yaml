@@ -1,0 +1,36 @@
+services:
+  sql-server:
+    image: petersobhypaysky/sql2022-windows:1.0.0
+    ports:
+      - "1433:1433"
+    networks:
+      - local_default
+
+  redis:
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    image: petersobhypaysky/redis-windows:1.0.0
+    command: --protected-mode no --appendonly yes --dir C:/redis-data
+    volumes:
+      - C:/redis-data:C:/redis-data
+    networks:
+      - local_default
+
+  elasticsearch:
+    image: petersobhypaysky/elasticsearch-windows:1.0.0
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    networks:
+      - local_default
+
+volumes:
+  redis-data:
+
+networks:
+  local_default:
+    driver: nat

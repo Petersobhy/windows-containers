@@ -1,0 +1,44 @@
+services:
+  sql-server:
+    build: 
+      context: ./sql/
+      dockerfile: ./sql.dockerfile
+    ports:
+      - "1433:1433"
+    networks:
+      - local_default
+
+  redis:
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    build:
+      context: .  # Path to the directory containing your Dockerfile
+      dockerfile: redis.dockerfile
+    command: --protected-mode no --appendonly yes --dir C:/redis-data
+    volumes:
+      - C:/redis-data:C:/redis-data
+    networks:
+      - local_default
+
+  elasticsearch:
+    build: 
+      context: .
+      dockerfile: elasticsearch.dockerfile
+      args:
+        - ARG_VERSION=8.16.0
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    networks:
+      - local_default
+
+volumes:
+  redis-data:
+
+networks:
+  local_default:
+    driver: nat
